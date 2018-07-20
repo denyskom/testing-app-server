@@ -18,21 +18,27 @@ router.post('/activities', function (req,res) {
         .catch(err => res.status(500).json({error: err}));
 });
 
+router.get('/activities/:id', function (req, res) {
+    Activity.findById(req.params.id)
+        .then(activities => res.json(activities))
+        .catch(err => res.status(500).json({error: err}))
+});
+
 router.get('/people', function (req, res) {
     Person.find()
-        .then(activities => res.json(activities))
+        .then(person => res.json(person))
         .catch(err => res.status(500).json({error: err}))
 });
 
 router.post('/people', function (req,res) {
     Person.create(req.body)
-        .then(activities => res.json(activities))
+        .then(person => res.json(person))
         .catch(err => res.status(500).json({error: err}));
 });
 
 router.get('/people/:id', function (req, res) {
     Person.findById(req.params.id)
-        .then(activities => res.json(activities))
+        .then(person => res.json(person))
         .catch(err => res.status(500).json({error: err}))
 });
 
@@ -54,6 +60,11 @@ router.get('/tasks/:id', function (req, res) {
         .catch(err => res.status(500).json({error: err}))
 });
 
+router.get('/stages/:id', function (req, res) {
+    Task.find({activityId:req.params.id})
+        .then(task => res.json(task))
+        .catch(err => res.status(500).json({error: err}))
+});
 
 
 module.exports = router;
