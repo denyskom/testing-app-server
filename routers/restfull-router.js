@@ -12,7 +12,8 @@ const RESTFullRouter = (controller) => {
     router.post('/',function (req,res) {
         controller.create(req.body)
             .then(models => res.json(models))
-            .catch(err => res.status(500).json({error: err}));
+            .catch(err => {console.log(err);
+                res.status(500).json({error: err})});
 
     });
 

@@ -19,5 +19,11 @@ router.get('/stages/:id', function (req, res) {
         .catch(err => res.status(500).json({error: err}))
 });
 
+router.post('/login', (req, res) =>
+    Person.findOne({email:req.body.email,password:req.body.password})
+        .then(person => res.json(person))
+        .catch(err => res.status(500).json({error: err}))
+);
+
 
 module.exports = router;
