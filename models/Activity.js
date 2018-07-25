@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const schema = require('mongoose').Schema;
 
 const ActivitySchema = mongoose.Schema({
     title: {type: String, required: true},
@@ -12,15 +13,7 @@ const ActivitySchema = mongoose.Schema({
         title:{type:String, default:"title"},
         isActive:{type:Boolean, default:false}
     }],
-    persons: [{
-        id:{type:String},
-        name:{type:String},
-        email:{type:String},
-        phone:{type:String},
-        photo:{type:String}
-    }]
-
-
+    persons: [schema.ObjectId]
 });
 
 const Activity = mongoose.model('Activity', ActivitySchema, 'activities');

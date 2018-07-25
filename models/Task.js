@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const schema = require('mongoose').Schema;
+
 
 const TaskSchema  = mongoose.Schema({
     title:{type:String, required:true},
@@ -18,15 +20,7 @@ const TaskSchema  = mongoose.Schema({
             replyTo:{type:String,default:""}
         }
     ],
-    interns:[{
-        id:{type:String},
-        name:{type:String},
-        email:{type:String},
-        phone:{type:String},
-        photo:{type:String},
-        link:{type:String,default:""},
-        isPassed:{type:Boolean,default:false}
-    }]
+    interns:[schema.ObjectId]
 
 });
 
