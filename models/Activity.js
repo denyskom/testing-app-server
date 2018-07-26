@@ -13,7 +13,7 @@ const ActivitySchema = mongoose.Schema({
         title:{type:String, default:"title"},
         isActive:{type:Boolean, default:false}
     }],
-    persons: [schema.ObjectId]
+    persons: [String]
 });
 
 const Activity = mongoose.model('Activity', ActivitySchema, 'activities');
