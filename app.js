@@ -5,7 +5,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 
-const DB_URL ='mongodb://localhost:27017/inCamp';
+// const DB_URL ='mongodb://localhost:27017/inCamp';
+const DB_URL ='mongodb://user:a123456@ds020228.mlab.com:20228/in-camp';
+
 
 mongoose.connect(DB_URL, { useNewUrlParser: true }, function (err) {
     if(err) {
