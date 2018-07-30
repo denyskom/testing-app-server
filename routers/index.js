@@ -1,5 +1,8 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
+const keys = require('../config/keys');
 
 const Activity = require('../models/Activity');
 const Person = require('../models/Person');
@@ -19,10 +22,45 @@ router.get('/stages/:id', function (req, res) {
         .catch(err => res.status(500).json({error: err}))
 });
 
-router.post('/login', (req, res) =>
-    Person.findOne({email:req.body.email,password:req.body.password})
-        .then(person => res.json(person))
+router.post('/login', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    const inputError = {inputError:"Email or password are wrong"};
+
+    Person.findOne({email:email})
+        .then(user => {
+            if(!user) {
+                return res.status(404);
+                // return res.status(404).json(inputError);
+            }
+
+            bcrypt.compare(password, user.password)
+                .then(isMatch => {
+                    if(isMatch) {
+                        const payload = {
+                            id: user._id,
+                            photo:user.photo
+                        };
+                        jwt.sign(
+                            payload,
+                            keys.secretOrKey,
+                            {expiresIn:3600},
+                            (err, token) => {
+                                return res.json({
+                                    success: true,
+                                    token: 'Bearer ' + token
+                                })
+                            }
+                            );
+                    } else {
+                        return res.status(400);
+                        // return res.status(404).json(inputError);
+                    }
+                })
+        })
         .catch(err => res.status(500).json({error: err}))
+
+    }
 );
 
 router.post('/participate', (req,res) => {
@@ -47,6 +85,55 @@ router.patch('/participate', (req,res) => {
         .then(() => Activity.findByIdAndUpdate(activityId, {$pull:{persons:userId}})
             .then(activity => {res.json(activity)}).catch(err => res.status(500).json({error: err}))
         ).catch(err => res.status(500).json({error: err}));
+});
+
+router.post('/register', (req, res) => {
+    Person.findOne({email:req.body.email})
+        .then(user => {
+            if(user) {
+                res.status(400).json({emailError:"Please chose another email"})
+            } else {
+                const newUser = new Person({
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    password: req.body.password,
+                    email: req.body.email,
+                    phone: req.body.phone,
+                    birth_date: req.body.birth_date,
+                    photo: req.body.photo,
+                    english:req.body.english,
+                    basics:req.body.basics,
+
+                    university: req.body.university,
+                    faculty: req.body.faculty,
+                    course: req.body.course,
+                    events: req.body.events,
+                    literature: req.body.literature,
+                    whyIT: req.body.whyIT,
+                    technologies: req.body.technologies,
+                    mainInJob: req.body.mainInJob,
+                    positiveSides: req.body.positiveSides,
+                    negativeSides: req.body.negativeSides,
+
+                });
+
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(newUser.password, salt, (err, hash) => {
+                        if(err) {
+                            throw err;
+                        }
+
+                        newUser.password = hash;
+                        newUser.save()
+                            .then(user => res.json(user))
+                            .catch(err => console.error(err))
+                    })
+                    }
+                )
+
+            }
+        }
+        )
 });
 
 module.exports = router;
