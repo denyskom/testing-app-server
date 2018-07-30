@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const keys = require('../config/keys');
+const passport = require('passport');
 
 const Activity = require('../models/Activity');
 const Person = require('../models/Person');
@@ -59,7 +60,6 @@ router.post('/login', (req, res) => {
                 })
         })
         .catch(err => res.status(500).json({error: err}))
-
     }
 );
 
