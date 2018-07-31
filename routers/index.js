@@ -11,7 +11,11 @@ const Task = require('../models/Task');
 
 const restRouter = require('./restfull-router');
 const controllers = require('../controllers');
+const validateRegisterInput = require('../validation/registration');
+const validateLoginInput = require('../validation/login');
 
+
+require('../config/passport')(passport);
 
 for (let path in controllers) {
     router.use(`/${path}`,restRouter(controllers[path]));
@@ -24,6 +28,12 @@ router.get('/stages/:id', function (req, res) {
 });
 
 router.post('/login', (req, res) => {
+    const {errors, isValid} = validateLoginInput(req.body);
+
+    if(!isValid) {
+        return res.status(400).json(errors);
+    }
+
     const email = req.body.email;
     const password = req.body.password;
     const inputError = {inputError:"Email or password are wrong"};
@@ -63,7 +73,7 @@ router.post('/login', (req, res) => {
     }
 );
 
-router.post('/participate', (req,res) => {
+router.post('/participate', passport.authenticate('jwt', {session:false}), (req,res) => {
     let activity = req.body;
     let personId = activity.personId;
     Activity.findByIdAndUpdate(activity._id,{$addToSet: {persons: personId}})
@@ -88,10 +98,16 @@ router.patch('/participate', (req,res) => {
 });
 
 router.post('/register', (req, res) => {
+    const {errors, isValid} = validateRegisterInput(req.body);
+
+    if(!isValid) {
+        return res.status(400).json(errors);
+    }
+
     Person.findOne({email:req.body.email})
         .then(user => {
             if(user) {
-                res.status(400).json({emailError:"Please chose another email"})
+                return res.status(400).json({emailError:'Please chose another email'})
             } else {
                 const newUser = new Person({
                     firstName: req.body.firstName,
