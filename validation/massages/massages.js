@@ -10,6 +10,9 @@ const errorMassages = {
     phone: 'Phone number must not be empty',
     birth_date: 'You should peak a date',
     english: 'English field must not be empty',
+
+    activityNotFound:'Activity not found',
+    personNotFound:'Person not found'
 };
 
 module.exports = {

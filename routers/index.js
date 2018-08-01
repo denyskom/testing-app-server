@@ -1,20 +1,15 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
-const keys = require('../config/keys');
 const passport = require('passport');
 
-const Activity = require('../models/Activity');
-const Person = require('../models/Person');
 const Task = require('../models/Task');
 
 const restRouter = require('./restfull-router');
 const activityRouter = require('./activity');
 const registrationRouter = require('./register');
+const loginRouter = require('./login');
 
 const controllers = require('../controllers');
-const validateLoginInput = require('../validation/login');
 
 
 require('../config/passport')(passport);
@@ -26,8 +21,8 @@ router.get('/stages/:id', function (req, res) {
 });
 
 
-
-router.use(registrationRouter.router);
+router.use(loginRouter);
+router.use(registrationRouter);
 router.use(activityRouter.route, activityRouter.router);
 
 for (let path in controllers) {

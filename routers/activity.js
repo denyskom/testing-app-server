@@ -2,6 +2,8 @@ const express = require('express');
 const passport = require('passport');
 const Activity = require('../models/Activity');
 const Person = require('../models/Person');
+const errorMassages = require('../validation/massages/massages').errorMassages;
+
 
 
 
@@ -20,8 +22,8 @@ router.post('/:id/add/:user_id', passport.authenticate('jwt', {session:false}), 
                         description:activity.description,
                     }
                 }
-            }).then(person => res.json(person)).catch(err => res.status(500).json({error: err}))
-        ).catch(err => res.status(500).json({error: err}));
+            }).then(person => res.json(person)).catch(err => res.status(404).json({person: errorMassages.personNotFound}))
+        ).catch(err => res.status(404).json({activity: errorMassages.activityNotFound}));
 });
 
 router.delete('/:id/delete/:user_id', passport.authenticate('jwt', {session:false}),(req,res) => {
@@ -29,14 +31,17 @@ router.delete('/:id/delete/:user_id', passport.authenticate('jwt', {session:fals
     let activityId = req.params.id;
     Person.findByIdAndUpdate(userId,{$pull:{activities:{id:activityId}}})
         .then(() => Activity.findByIdAndUpdate(activityId, {$pull:{persons:userId}})
-            .then(activity => {res.json(activity)}).catch(err => res.status(500).json({error: err}))
-        ).catch(err => res.status(500).json({error: err}));
+            .then(activity => {res.json(activity)})
+            .catch(err => res.status(404).json({activity: errorMassages.activityNotFound}))
+        ).catch(err => res.status(404).json({person: errorMassages.personNotFound}));
 });
 
 router.get('/:id/persons' , (req,res) => {
     Activity.findById(req.params.id)
         .populate('persons')
-        .then(activities => res.json(activities.persons)).catch(err => res.status(500).json({error: err}));
+        .then(activities => res.json(activities.persons))
+        .catch(err => res.status(404)
+            .json({activity: errorMassages.activityNotFound}));
 });
 
 
