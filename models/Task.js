@@ -20,7 +20,7 @@ const TaskSchema  = mongoose.Schema({
             replyTo:{type:String,default:""}
         }
     ],
-    interns:[schema.ObjectId]
+    interns:[schema.Types.ObjectId]
 
 });
 

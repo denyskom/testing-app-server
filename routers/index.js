@@ -17,10 +17,6 @@ const validateLoginInput = require('../validation/login');
 
 require('../config/passport')(passport);
 
-for (let path in controllers) {
-    router.use(`/${path}`,restRouter(controllers[path]));
-}
-
 router.get('/stages/:id', function (req, res) {
     Task.find({activityId:req.params.id})
         .then(task => res.json(task))
@@ -41,8 +37,7 @@ router.post('/login', (req, res) => {
     Person.findOne({email:email})
         .then(user => {
             if(!user) {
-                return res.status(404);
-                // return res.status(404).json(inputError);
+                return res.status(404).json(inputError);
             }
 
             bcrypt.compare(password, user.password)
@@ -64,8 +59,7 @@ router.post('/login', (req, res) => {
                             }
                             );
                     } else {
-                        return res.status(400);
-                        // return res.status(404).json(inputError);
+                        return res.status(404).json(inputError);
                     }
                 })
         })
@@ -73,10 +67,10 @@ router.post('/login', (req, res) => {
     }
 );
 
-router.post('/participate', passport.authenticate('jwt', {session:false}), (req,res) => {
+router.post('/activity/:id/add/:user_id', passport.authenticate('jwt', {session:false}), (req,res) => {
     let activity = req.body;
-    let personId = activity.personId;
-    Activity.findByIdAndUpdate(activity._id,{$addToSet: {persons: personId}})
+    let personId = req.params.user_id;
+    Activity.findByIdAndUpdate(req.params.id,{$addToSet: {persons: personId}})
         .then(() => Person.findByIdAndUpdate(personId,{$addToSet:{
                 activities: {
                     id:activity._id,
@@ -88,14 +82,21 @@ router.post('/participate', passport.authenticate('jwt', {session:false}), (req,
         ).catch(err => res.status(500).json({error: err}));
 });
 
-router.patch('/participate', (req,res) => {
-    let userId = req.body.userId;
-    let activityId = req.body.activityId;
-    Person.findByIdAndUpdate(userId,{$pull:{activities:{$elemMatch:{id:activityId}}}})
+router.delete('/activity/:id/delete/:user_id', passport.authenticate('jwt', {session:false}),(req,res) => {
+    let userId = req.params.user_id;
+    let activityId = req.params.id;
+    Person.findByIdAndUpdate(userId,{$pull:{activities:{id:activityId}}})
         .then(() => Activity.findByIdAndUpdate(activityId, {$pull:{persons:userId}})
             .then(activity => {res.json(activity)}).catch(err => res.status(500).json({error: err}))
         ).catch(err => res.status(500).json({error: err}));
 });
+
+router.get('/activity/:id/persons' , (req,res) => {
+    Activity.findById(req.params.id)
+        .populate('persons')
+        .then(activities => res.json(activities.persons)).catch(err => res.status(500).json({error: err}));
+});
+
 
 router.post('/register', (req, res) => {
     const {errors, isValid} = validateRegisterInput(req.body);
@@ -151,6 +152,10 @@ router.post('/register', (req, res) => {
         }
         )
 });
+
+for (let path in controllers) {
+    router.use(`/${path}`,restRouter(controllers[path]));
+}
 
 module.exports = router;
 

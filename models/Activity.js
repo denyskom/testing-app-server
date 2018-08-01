@@ -13,7 +13,9 @@ const ActivitySchema = mongoose.Schema({
         title:{type:String, default:"title"},
         isActive:{type:Boolean, default:false}
     }],
-    persons: [String]
+    persons: [{type:schema.Types.ObjectId,
+        ref: 'Person'
+    }]
 });
 
 const Activity = mongoose.model('Activity', ActivitySchema, 'activities');

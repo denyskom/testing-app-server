@@ -25,7 +25,7 @@ const PersonSchema = mongoose.Schema({
 
     auth:{type:String,default:"user"},
     activities:[{
-            id:{type:String},
+            id:{type:mongoose.Schema.Types.ObjectId, ref: 'activities' },
             title:{type:String},
             description:{type:String},
             isActive:{type:Boolean, default:true},
