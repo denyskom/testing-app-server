@@ -4,6 +4,7 @@ const errorMassages = {
     passwordConfirmNonMatch: 'Password and confirmation should match',
     password: 'Password must be between 2 and 30 characters',
     passwordConfirm: 'Password confirmation must be between 2 and 30 characters',
+    emailExists:'Please chose another email',
     emailIncorrect: 'Incorrect type of email',
     email: 'Email must not be empty',
     phoneIncorrect: 'Phone number has unacceptable characters or to short',

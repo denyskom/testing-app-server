@@ -2,6 +2,8 @@ const express = require('express');
 const Person = require('../models/Person');
 const bcrypt = require('bcrypt');
 const validateRegisterInput = require('../validation/registration');
+const errorMassages = require('../validation/massages/massages').errorMassages;
+
 
 
 
@@ -17,7 +19,7 @@ router.post('/register', (req, res) => {
     Person.findOne({email:req.body.email})
         .then(user => {
                 if(user) {
-                    return res.status(400).json({emailError:'Please chose another email'})
+                    return res.status(400).json({email:errorMassages.emailExists})
                 } else {
                     const newUser = new Person({
                         firstName: req.body.firstName,

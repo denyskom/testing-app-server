@@ -5,17 +5,12 @@ const Person = require('../models/Person');
 const errorMassages = require('../validation/massages/massages').errorMassages;
 
 
-
-
-
-
 const router = express.Router();
 
-router.post('/:id/add/:user_id', passport.authenticate('jwt', {session:false}), (req,res) => {
+router.put('/:id/user/:user_id', passport.authenticate('jwt', {session: false}), (req, res) => {
     let activity = req.body;
     let personId = req.params.user_id;
-    Activity.findByIdAndUpdate(req.params.id,{$addToSet: {persons: personId}})
-        .then(() => Person.findByIdAndUpdate(personId,{$addToSet:{
+    Activity.findByIdAndPutPerson(req.params.id,personId).then(() => Person.findByIdAndUpdate(personId,{$addToSet:{
                     activities: {
                         id:activity._id,
                         title:activity.title,
@@ -26,17 +21,19 @@ router.post('/:id/add/:user_id', passport.authenticate('jwt', {session:false}), 
         ).catch(err => res.status(404).json({activity: errorMassages.activityNotFound}));
 });
 
-router.delete('/:id/delete/:user_id', passport.authenticate('jwt', {session:false}),(req,res) => {
+router.delete('/:id/user/:user_id', passport.authenticate('jwt', {session: false}), (req, res) => {
     let userId = req.params.user_id;
     let activityId = req.params.id;
-    Person.findByIdAndUpdate(userId,{$pull:{activities:{id:activityId}}})
-        .then(() => Activity.findByIdAndUpdate(activityId, {$pull:{persons:userId}})
-            .then(activity => {res.json(activity)})
+    Person.findByIdAndUpdate(userId, {$pull: {activities: {id: activityId}}})
+        .then(() => Activity.findByIdAndUpdate(activityId, {$pull: {persons: userId}})
+            .then(activity => {
+                res.json(activity)
+            })
             .catch(err => res.status(404).json({activity: errorMassages.activityNotFound}))
         ).catch(err => res.status(404).json({person: errorMassages.personNotFound}));
 });
 
-router.get('/:id/persons' , (req,res) => {
+router.get('/:id/persons', (req, res) => {
     Activity.findById(req.params.id)
         .populate('persons')
         .then(activities => res.json(activities.persons))
@@ -46,6 +43,6 @@ router.get('/:id/persons' , (req,res) => {
 
 
 module.exports = {
-    route:'/activity',
+    route: '/activity',
     router
 };
