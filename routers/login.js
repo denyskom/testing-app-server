@@ -40,6 +40,7 @@ router.post('/login', (req, res) => {
                                     return res.json({
                                         success: true,
                                         token: 'Bearer ' + token,
+                                        user
                                     })
                                 }
                             );
