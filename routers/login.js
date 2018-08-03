@@ -17,7 +17,7 @@ router.post('/login', (req, res) => {
 
         const email = req.body.email;
         const password = req.body.password;
-        const inputError = {inputError:"Email or password are wrong"};
+        const inputError = {email:"Email or password are wrong"};
 
         Person.findOne({email:email})
             .then(user => {
@@ -40,7 +40,6 @@ router.post('/login', (req, res) => {
                                     return res.json({
                                         success: true,
                                         token: 'Bearer ' + token,
-                                        user:user
                                     })
                                 }
                             );
